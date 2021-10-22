@@ -15,13 +15,14 @@ jobs:
           npm install
       - run: |
           npm run all
-      - run: |
-          npx create-nx-workspace
   test: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: ./
+      - name: Create nx workspace
+        run: npx create-nx-workspace
+      - name: Test action
+        uses: ./
         with:
           project: pathfinder
           base: origin/main
