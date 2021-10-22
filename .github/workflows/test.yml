@@ -23,6 +23,7 @@ jobs:
         run: npx create-nx-workspace@13.0.1 affected-dependencies-test --preset=angular --appName=affected-dependencies-test-app --cli=angular --style=scss  --nxCloud=0
       - name: Test action
         uses: ./
+        working-directory: ./affected-dependencies-test
         with:
           project: pathfinder
           base: origin/main
