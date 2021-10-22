@@ -9,7 +9,11 @@ export async function getDependencyGraph(
   project: string
 ): Promise<NxDependencyGraph> {
   const depGraphFileName = 'nx_affected_dependencies_output.json'
-  await exec(`npx nx dep-graph --focus=${project} --file=${depGraphFileName}`)
+  await exec(
+    `npx nx dep-graph --focus=${project} --file=${depGraphFileName}`,
+    undefined,
+    {silent: true}
+  )
   const depGraphJson: {graph: NxDependencyGraph} = require(resolve(
     process.cwd(),
     `./${depGraphFileName}`

@@ -9,11 +9,14 @@ inputs:
     required: true
     description: "The angular CLI target you want to execute, e.g. 'lint' or 'test'."
   base:
-    required: true
+    required: false
     description: 'The base reference to be used for the affected evaluation.'
   head:
     required: false
     description: 'The head reference to be used for the affected evaluation.'
+  gitflow:
+    required: false
+    description: "Set to 'true' for this action to automatically compare the merge commit to the previous one on develop/master and to use origin/develop as base when running on a feature branch."
   runner:
     required: false
     description: 'The runner of the command. Used to leverage nx cache.'

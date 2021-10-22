@@ -61,6 +61,7 @@ afterAll(() => {
   jest.restoreAllMocks()
 })
 
+// TODO: add unit tests for gitflow parameter
 // TODO: split into smaller unit tests
 test('sets the outputs isAffected and affectedDeps', async () => {
   const affectedSpy = mockNxAffectedOutput(project + ' foo bar baz')

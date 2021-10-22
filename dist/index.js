@@ -22,7 +22,7 @@ const path_1 = __nccwpck_require__(622);
 function getDependencyGraph(project) {
     return __awaiter(this, void 0, void 0, function* () {
         const depGraphFileName = 'nx_affected_dependencies_output.json';
-        yield (0, exec_1.exec)(`npx nx dep-graph --focus=${project} --file=${depGraphFileName}`);
+        yield (0, exec_1.exec)(`npx nx dep-graph --focus=${project} --file=${depGraphFileName}`, undefined, { silent: true });
         const depGraphJson = require((0, path_1.resolve)(process.cwd(), `./${depGraphFileName}`));
         const { graph } = depGraphJson;
         return graph;
@@ -78,6 +78,9 @@ function run() {
             const project = core.getInput('project');
             const base = core.getInput('base');
             const head = (_a = core.getInput('head')) !== null && _a !== void 0 ? _a : undefined;
+            const usingGitFLow = core.getInput('gitflow')
+                ? core.getInput('gitflow') === 'true'
+                : false;
             const extractList = (output) => {
                 const trimmed = output.trim();
                 return trimmed.length === 0
@@ -85,24 +88,45 @@ function run() {
                     : trimmed.split(' ').map(proj => proj.trim());
             };
             const getAffectedProjects = (project_type) => __awaiter(this, void 0, void 0, function* () {
-                const commandArgs = ['--base', base, '--plain'];
-                if (head) {
-                    commandArgs.push('--head', head);
+                const commandArgs = ['--plain'];
+                if (usingGitFLow) {
+                    const ref = process.env.GITHUB_REF;
+                    const commitSha = process.env.GITHUB_SHA;
+                    const isMasterOrDevelop = () => ref === 'refs/heads/master' ||
+                        ref === 'refs/heads/main' ||
+                        ref === 'refs/heads/develop';
+                    if (isMasterOrDevelop()) {
+                        commandArgs.push('--base', `${commitSha}~1`, '--head', commitSha);
+                    }
+                    else {
+                        commandArgs.push('--base', 'origin/develop');
+                    }
+                }
+                else {
+                    if (base) {
+                        commandArgs.push('--base', base);
+                    }
+                    if (head) {
+                        commandArgs.push('--head', head);
+                    }
                 }
                 const affectedCommand = `npx nx affected:${project_type}`;
-                const affectedResult = yield (0, exec_1.getExecOutput)(affectedCommand, commandArgs);
+                const affectedResult = yield (0, exec_1.getExecOutput)(affectedCommand, commandArgs, { silent: true });
                 return extractList(affectedResult.stdout);
             });
+            core.info('Getting list of affected projects using "nx affected".');
             // get the projects that are affected by the changes that happened since base (until head if provided)
             const allAffectedProjects = [
                 ...(yield getAffectedProjects('libs')),
                 ...(yield getAffectedProjects('apps'))
             ];
+            core.info(`Getting dependencies of ${project} to filter by affected ones.`);
             // get the projects that are actually used by the provided project and filter them by affected projects
             const graph = yield (0, get_dependency_graph_1.getDependencyGraph)(project);
             const affectedDependencies = graph.nodes
                 ? Object.keys(graph.nodes).filter(depName => allAffectedProjects.includes(depName))
                 : [];
+            core.info('Setting outputs');
             core.setOutput('affectedDeps', affectedDependencies.join(','));
             core.setOutput('isAffected', affectedDependencies.length > 0);
         }
