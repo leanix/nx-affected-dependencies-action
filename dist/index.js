@@ -111,7 +111,10 @@ function run() {
                     }
                 }
                 const affectedCommand = `npx nx affected:${project_type}`;
-                const affectedResult = yield (0, exec_1.getExecOutput)(affectedCommand, commandArgs, { silent: true });
+                core.info(`${affectedCommand} ${commandArgs.join(' ')}`); // this is mostly useful for debug purposes
+                const affectedResult = yield (0, exec_1.getExecOutput)(affectedCommand, commandArgs, {
+                    silent: true
+                });
                 return extractList(affectedResult.stdout);
             });
             core.info('Getting list of affected projects using "nx affected".');

@@ -44,6 +44,7 @@ export async function run(): Promise<void> {
       }
 
       const affectedCommand = `npx nx affected:${project_type}`
+      core.info(`${affectedCommand} ${commandArgs.join(' ')}`) // this is mostly useful for debug purposes
       const affectedResult = await getExecOutput(affectedCommand, commandArgs, {
         silent: true
       })
