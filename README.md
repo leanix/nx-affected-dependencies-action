@@ -10,6 +10,10 @@ By combining `nx affected` and `nx dep-graph --focus=theNameOfTheAppToDeploy` we
 
 ## Usage:
 
+### Using base and head parameters
+
+When providing the `base` and `head` parameters to the workflow they are directly passed into [nx affected](https://nx.dev/l/r/cli/affected).
+
 ```
 - name: Evaluate affected
   uses: konstantintieber/nx-affected-dependencies-action@main
@@ -18,6 +22,52 @@ By combining `nx affected` and `nx dep-graph --focus=theNameOfTheAppToDeploy` we
     project: pathfinder
     base: ${{ github.sha }}~1
     head: ${{ github.sha }}
+
+- name: Run Unit Tests (Affected)
+  if: steps.affected.outputs.isAffected == 'true'
+  env:
+    affectedDeps: ${{ steps.affected.outputs.affectedDeps }}
+  run: npx nx run-many --target=test --projects=$affectedDeps
+```
+
+#### Emulate git-flow
+
+Here's a snippet to generate the `base` and `head` inputs for a repository that uses the `git-flow` branching strategy:
+```
+- name: Get parameters for nx-affected-dependencies-action
+  id: affectedInputs
+  run: |
+    if ["${BRANCH##*/}" == "develop"] || ["${BRANCH##*/}" == "master"]; then
+        echo "::set-output name=base::origin/develop"
+        echo "::set-output name=head::"
+    else
+        echo "::set-output name=base::$COMMIT_SHA~1"
+        echo "::set-output name=head::$COMMIT_SHA"
+    fi
+  env:
+    BRANCH: ${{ github.ref }}
+    COMMIT_SHA: ${{ github.sha }}
+- name: Evaluate affected
+  uses: konstantintieber/nx-affected-dependencies-action@main
+  id: affected
+  with:
+    project: pathfinder
+    base: ${{ steps.affectedInputs.outputs.base }}
+    head: ${{ steps.affectedInputs.outputs.head }}
+```
+
+### Using gitflow parameter
+
+Instead of emulating `git-flow` with `base` and `head` parameters you can also just set the `git-flow` workflow parameter to `true` and we'll handle it for you.
+
+Like this:
+```
+- name: Evaluate affected
+  uses: konstantintieber/nx-affected-dependencies-action@main
+  id: affected
+  with:
+    project: pathfinder
+    gitflow: true
 
 - name: Run Unit Tests (Affected)
   if: steps.affected.outputs.isAffected == 'true'
