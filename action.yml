@@ -1,11 +1,27 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Nx affected depencencies action'
+description: 'Run angular CLI commands for an affected project and all its affected dependencies'
+author: 'LeanIX GmbH'
 inputs:
-  milliseconds: # change this
+  project:
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    description: 'The name of the project whose affected dependencies you want to lint/test etc..'
+  target:
+    required: true
+    description: "The angular CLI target you want to execute, e.g. 'lint' or 'test'."
+  base:
+    required: true
+    description: 'The base reference to be used for the affected evaluation.'
+  head:
+    required: false
+    description: 'The head reference to be used for the affected evaluation.'
+  runner:
+    required: false
+    description: 'The runner of the command. Used to leverage nx cache.'
+outputs:
+  isAffected:
+    description: 'Indicates if the provided project is affected'
+  affectedDeps:
+    description: 'List of affected project and its affected dependencies concatenated with comma.'
 runs:
   using: 'node12'
   main: 'dist/index.js'

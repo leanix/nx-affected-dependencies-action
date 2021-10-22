@@ -1,29 +1,108 @@
-import {wait} from '../src/wait'
-import * as process from 'process'
-import * as cp from 'child_process'
-import * as path from 'path'
-import {expect, test} from '@jest/globals'
+import * as core from '@actions/core'
+import * as exec from '@actions/exec'
+import * as dependencyGraph from '../src/get-dependency-graph'
+import {run} from '../src/main'
+import {jest, expect, test, beforeEach, afterEach} from '@jest/globals'
+import {NxDependencyGraph} from '../src/get-dependency-graph'
 
-test('throws invalid number', async () => {
-  const input = parseInt('foo', 10)
-  await expect(wait(input)).rejects.toThrow('milliseconds not a number')
+type ActionInputs = {
+  project: string
+  base: string
+  head?: string
+}
+
+interface ActionOutputs {
+  isAffected?: boolean
+  affectedDeps?: string
+}
+
+const project = 'pathfinder'
+const developBase = 'origin/develop'
+
+const defaultInputs = {project, base: developBase}
+
+// Inputs for mock @actions/core
+let inputs: ActionInputs = defaultInputs
+let outputs: ActionOutputs = {}
+
+beforeEach(() => {
+  // Mock getInput
+  jest.spyOn(core, 'getInput').mockImplementation((name: string) => {
+    // @ts-ignore
+    return inputs[name]
+  })
+
+  // Mock setOutput
+  jest
+    .spyOn(core, 'setOutput')
+    .mockImplementation((name: string, value: string) => {
+      // @ts-ignore
+      return (outputs[name] = value)
+    })
+
+  // Mock error/warning/info/debug
+  jest.spyOn(core, 'error').mockImplementation(jest.fn())
+  jest.spyOn(core, 'warning').mockImplementation(jest.fn())
+  jest.spyOn(core, 'info').mockImplementation(jest.fn())
+  jest.spyOn(core, 'debug').mockImplementation(jest.fn())
+
+  // Reset inputs
+  inputs = defaultInputs
+  // Reset outputs
+  outputs = {}
 })
 
-test('wait 500 ms', async () => {
-  const start = new Date()
-  await wait(500)
-  const end = new Date()
-  var delta = Math.abs(end.getTime() - start.getTime())
-  expect(delta).toBeGreaterThan(450)
+afterEach(() => {
+  // Restore
+  jest.clearAllMocks()
 })
 
-// shows how the runner will run a javascript action with env / stdout protocol
-test('test runs', () => {
-  process.env['INPUT_MILLISECONDS'] = '500'
-  const np = process.execPath
-  const ip = path.join(__dirname, '..', 'lib', 'main.js')
-  const options: cp.ExecFileSyncOptions = {
-    env: process.env
+afterAll(() => {
+  jest.restoreAllMocks()
+})
+
+// TODO: split into smaller unit tests
+test('sets the outputs isAffected and affectedDeps', async () => {
+  const affectedSpy = mockNxAffectedOutput(project + ' foo bar baz')
+  mockDependencyGraph([project, 'bar'])
+
+  await run()
+
+  expect(affectedSpy).toHaveBeenCalledTimes(2)
+  console.log('OUTPUTS', JSON.stringify(outputs))
+  expect(outputs.isAffected).toEqual(true)
+  expect(outputs.affectedDeps).toEqual(`${project},bar`)
+})
+
+function mockDependencyGraph(dependencies: string[]) {
+  const nodes = dependencies.reduce(
+    (acc, dep) => ({...acc, [dep]: {type: 'lib', name: dep}}),
+    {}
+  )
+  const mock = async (_project: string): Promise<NxDependencyGraph> => {
+    return Promise.resolve({
+      nodes
+    })
   }
-  console.log(cp.execFileSync(np, [ip], options).toString())
-})
+  jest.spyOn(dependencyGraph, 'getDependencyGraph').mockImplementation(mock)
+}
+
+function mockNxAffectedOutput(affectedLibsOutput: string) {
+  const execSpy = jest.spyOn(exec, 'getExecOutput')
+  execSpy.mockImplementation((command: string) => {
+    if (command.includes('affected:apps')) {
+      return Promise.resolve({
+        exitCode: 0,
+        stdout: inputs.project,
+        stderr: ''
+      })
+    }
+
+    return Promise.resolve({
+      exitCode: 0,
+      stdout: affectedLibsOutput,
+      stderr: ''
+    })
+  })
+  return execSpy
+}
