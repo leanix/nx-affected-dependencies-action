@@ -12,7 +12,7 @@ By combining `nx affected` and `nx dep-graph --focus=theNameOfTheAppToDeploy` we
 
 ```
 - name: Evaluate affected
-  uses: konstantintieber/nx-affected-dependencies-action@master
+  uses: konstantintieber/nx-affected-dependencies-action@main
   id: affected
   with:
     project: pathfinder
@@ -31,6 +31,8 @@ By combining `nx affected` and `nx dep-graph --focus=theNameOfTheAppToDeploy` we
 Execute `npm run test` to run unit tests with Jest.
 
 ## How to publish
+
+⚠️ WARNING: Just go with uses: `konstantintieber/nx-affected-dependencies-action@main` for now until we decide to start publishing versions.
 
 Actions are run from GitHub repos so we will checkin the packed dist folder. 
 
