@@ -29,7 +29,7 @@ export async function run(): Promise<void> {
           ref === 'refs/heads/master' ||
           ref === 'refs/heads/main' ||
           ref === 'refs/heads/develop'
-        if (!isMasterOrDevelop()) {
+        if (isMasterOrDevelop()) {
           commandArgs.push('--base', `${commitSha}~1`, '--head', commitSha)
         } else {
           commandArgs.push('--base', 'origin/develop')
