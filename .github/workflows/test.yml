@@ -15,16 +15,17 @@ jobs:
           npm install
       - run: |
           npm run all
-  test: # make sure the action works on a clean machine without building
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Create nx workspace
-        run: |
-          npx create-nx-workspace@13.0.1 affected-dependencies-test --preset=angular --appName=affected-dependencies-test-app --cli=angular --style=scss  --nxCloud=0
-          cd affected-dependencies-test
-      - name: Test action
-        uses: ./
-        with:
-          project: pathfinder
-          base: origin/main
+  # TODO: think about how to make this step useful or remove it
+  # test: # make sure the action works on a clean machine without building
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: Create nx workspace
+  #       run: |
+  #         npx create-nx-workspace@13.0.1 affected-dependencies-test --preset=angular --appName=affected-dependencies-test-app --cli=angular --style=scss  --nxCloud=0
+  #         cd affected-dependencies-test
+  #     - name: Test action
+  #       uses: ./
+  #       with:
+  #         project: pathfinder
+  #         base: origin/main
