@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Create nx workspace
-        run: npx create-nx-workspace affected-dependencies-test --preset=angular --appName=affected-dependencies-test-app --cli=angular --style=scss
+        run: npx create-nx-workspace@13.0.1 affected-dependencies-test --preset=angular --appName=affected-dependencies-test-app --cli=angular --style=scss  --nxCloud=0
       - name: Test action
         uses: ./
         with:
