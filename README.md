@@ -16,7 +16,7 @@ When providing the `base` and `head` parameters to the workflow they are directl
 
 ```
 - name: Evaluate affected
-  uses: konstantintieber/nx-affected-dependencies-action@main
+  uses: leanix/nx-affected-dependencies-action@main
   id: affected
   with:
     project: pathfinder
@@ -48,7 +48,7 @@ Here's a snippet to generate the `base` and `head` inputs for a repository that 
     BRANCH: ${{ github.ref }}
     COMMIT_SHA: ${{ github.sha }}
 - name: Evaluate affected
-  uses: konstantintieber/nx-affected-dependencies-action@main
+  uses: leanix/nx-affected-dependencies-action@main
   id: affected
   with:
     project: pathfinder
@@ -63,7 +63,7 @@ Instead of emulating `git-flow` with `base` and `head` parameters you can also j
 Like this:
 ```
 - name: Evaluate affected
-  uses: konstantintieber/nx-affected-dependencies-action@main
+  uses: leanix/nx-affected-dependencies-action@main
   id: affected
   with:
     project: pathfinder
@@ -82,7 +82,7 @@ Execute `npm run test` to run unit tests with Jest.
 
 ## How to publish
 
-⚠️ WARNING: Just go with uses: `konstantintieber/nx-affected-dependencies-action@main` for now until we decide to start publishing versions.
+⚠️ WARNING: Just go with uses: `leanix/nx-affected-dependencies-action@main` for now until we decide to start publishing versions.
 
 Actions are run from GitHub repos so we will checkin the packed dist folder. 
 
