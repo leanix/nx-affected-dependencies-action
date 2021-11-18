@@ -75,6 +75,15 @@ test('sets the outputs isAffected and affectedDeps', async () => {
   expect(outputs.affectedDeps).toEqual(`${project},bar`)
 })
 
+test('sets isAffected to true when only the provided project is affected', async () => {
+  mockNxAffectedOutput(project)
+  mockDependencyGraph([project]) // the dependencies in the "nx dep-graph" output of a project always also includes the project itself
+
+  await run()
+
+  expect(outputs.isAffected).toEqual(true)
+})
+
 function mockDependencyGraph(dependencies: string[]) {
   const nodes = dependencies.reduce(
     (acc, dep) => ({...acc, [dep]: {type: 'lib', name: dep}}),
