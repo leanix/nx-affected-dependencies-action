@@ -16,7 +16,7 @@ When providing the `base` and `head` parameters to the workflow they are directl
 
 ```
 - name: Evaluate affected
-  uses: leanix/nx-affected-dependencies-action@main
+  uses: leanix/nx-affected-dependencies-action@v0.2.1
   id: affected
   with:
     project: pathfinder
@@ -48,7 +48,7 @@ Here's a snippet to generate the `base` and `head` inputs for a repository that 
     BRANCH: ${{ github.ref }}
     COMMIT_SHA: ${{ github.sha }}
 - name: Evaluate affected
-  uses: leanix/nx-affected-dependencies-action@main
+  uses: leanix/nx-affected-dependencies-action@v0.2.1
   id: affected
   with:
     project: pathfinder
@@ -63,7 +63,7 @@ Instead of emulating `git-flow` with `base` and `head` parameters you can also j
 Like this:
 ```
 - name: Evaluate affected
-  uses: leanix/nx-affected-dependencies-action@main
+  uses: leanix/nx-affected-dependencies-action@v0.2.1
   id: affected
   with:
     project: pathfinder
@@ -82,17 +82,17 @@ Execute `npm run test` to run unit tests with Jest.
 
 ## How to publish
 
-⚠️ WARNING: Just go with uses: `leanix/nx-affected-dependencies-action@main` for now until we decide to start publishing versions.
-
 Actions are run from GitHub repos so we will checkin the packed dist folder. 
 
-Then run [ncc](https://github.com/zeit/ncc) and push the results:
+Run the following commands to tag your new version.
 ```bash
 $ npm run package
 $ git add dist
-$ git commit -a -m "prod dependencies"
-$ git push origin releases/v1
+$ git commit -a -m "Meaningful commit message"
+$ git tag -a v0.x.x -m "Release 0.x.x"
 ```
+
+Then draft a new release via the GitHub repository UI.
 
 See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
 
