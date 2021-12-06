@@ -8,6 +8,9 @@ Then this action is for you!
 
 By combining `nx affected` and `nx dep-graph --focus=theNameOfTheAppToDeploy` we can create an intersection of these two lists to only get the affected projects that are actually a dependency of `theNameOfTheAppToDeploy`.
 
+![Illustration of the different lists of projects produced by three commands](https://user-images.githubusercontent.com/46342664/144886209-755375b0-42a2-4532-9e8c-f9357b10795c.png)
+
+
 ## Usage:
 
 ### Using base and head parameters
