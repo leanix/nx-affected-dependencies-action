@@ -61,8 +61,59 @@ afterAll(() => {
   jest.restoreAllMocks()
 })
 
+describe('isAffected output', () => {
+  it('is false when provided project is not affected', async () => {
+    mockNxAffectedOutput('depOfOtherApp', 'otherApp')
+    mockDependencyGraph([project, 'bar'])
+
+    await run()
+
+    expect(outputs.isAffected).toEqual(false)
+  })
+
+  it('is true when provided project is affected', async () => {
+    mockNxAffectedOutput('', project)
+    mockDependencyGraph([project]) // the dependencies in the "nx dep-graph" output of a project always also includes the project itself
+  
+    await run()
+  
+    expect(outputs.isAffected).toEqual(true)
+  })
+
+  it('is true when one of the dependencies of the provided project is affected', async () => {
+    const projectDependency = 'bar';
+    mockNxAffectedOutput(projectDependency, '')
+    mockDependencyGraph([project, projectDependency])
+
+    await run()
+
+    expect(outputs.isAffected).toEqual(true)
+  })
+})
+
+describe('affectedDeps output', () => {
+  it('contains the provided project name', async () => {
+    mockNxAffectedOutput('', project)
+    mockDependencyGraph([project, 'bar'])
+
+    await run()
+
+    expect(outputs.affectedDeps).toEqual(`${project}`)
+  })
+
+  it('contains the affected dependencies of the provided project', async () => {
+    const affectedDependencies = 'foo bar';
+    const dependencies = affectedDependencies + ' baz'
+    mockNxAffectedOutput(affectedDependencies, project)
+    mockDependencyGraph([project, ...dependencies.split(' ')])
+
+    await run()
+
+    expect(outputs.affectedDeps).toEqual(`${project},${affectedDependencies.split(' ').join(',')}`)
+  })
+})
+
 // TODO: add unit tests for gitflow parameter
-// TODO: split into smaller unit tests
 test('sets the outputs isAffected and affectedDeps', async () => {
   const affectedSpy = mockNxAffectedOutput(project + ' foo bar baz')
   mockDependencyGraph([project, 'bar'])
@@ -70,18 +121,8 @@ test('sets the outputs isAffected and affectedDeps', async () => {
   await run()
 
   expect(affectedSpy).toHaveBeenCalledTimes(2)
-  console.log('OUTPUTS', JSON.stringify(outputs))
   expect(outputs.isAffected).toEqual(true)
   expect(outputs.affectedDeps).toEqual(`${project},bar`)
-})
-
-test('sets isAffected to true when only the provided project is affected', async () => {
-  mockNxAffectedOutput(project)
-  mockDependencyGraph([project]) // the dependencies in the "nx dep-graph" output of a project always also includes the project itself
-
-  await run()
-
-  expect(outputs.isAffected).toEqual(true)
 })
 
 function mockDependencyGraph(dependencies: string[]) {
@@ -97,13 +138,13 @@ function mockDependencyGraph(dependencies: string[]) {
   jest.spyOn(dependencyGraph, 'getDependencyGraph').mockImplementation(mock)
 }
 
-function mockNxAffectedOutput(affectedLibsOutput: string) {
+function mockNxAffectedOutput(affectedLibsOutput: string, affectedAppsOutput: string = inputs.project) {
   const execSpy = jest.spyOn(exec, 'getExecOutput')
   execSpy.mockImplementation((command: string) => {
     if (command.includes('affected:apps')) {
       return Promise.resolve({
         exitCode: 0,
-        stdout: inputs.project,
+        stdout: affectedAppsOutput,
         stderr: ''
       })
     }

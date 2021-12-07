@@ -60,9 +60,9 @@ export async function run(): Promise<void> {
 
     core.info(`Getting dependencies of ${project} to filter by affected ones.`)
     // get the projects that are actually used by the provided project and filter them by affected projects
-    const graph = await getDependencyGraph(project)
-    const affectedDependencies = graph.nodes
-      ? Object.keys(graph.nodes).filter(depName =>
+    const depencencyGraph = await getDependencyGraph(project)
+    const affectedDependencies = depencencyGraph.nodes
+      ? Object.keys(depencencyGraph.nodes).filter(depName =>
           allAffectedProjects.includes(depName)
         )
       : []
