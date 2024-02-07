@@ -1,0 +1,9 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: nx-affected-dependencies-action
+Upstream-Contact: SAP Open Source Program Office ospo@sap.com
+Source: https://github.com/leanix/nx-affected-dependencies-action
+
+Files: *
+Copyright: 2024 SAP SE or an SAP affiliate company and nx-affected-dependencies-action contributors.
+License: MIT
+
