@@ -1,3 +1,5 @@
+[![REUSE status](https://api.reuse.software/badge/github.com/leanix/nx-affected-dependencies-action)](https://api.reuse.software/info/github.com/leanix/nx-affected-dependencies-action)
+
 # nx-affected-dependencies-action
 
 Are you deploying many different apps in your nx monorepo with dedicated workflows?
